@@ -1,0 +1,80 @@
+Vagrant Box Set-up:
+-------------------
+Step 1: Download & Add the maverick32trustpay box:
+
+vagrant box add 'maverick32trustpay' 'maverick32trustpay.box'
+
+Step 2 (in test_deploy diretory): Start - Up the Box
+
+vagrant up
+
+Step 3: Login into the box
+
+vagrant ssh
+
+Step 4:  Set-Up Passenger
+
+Change to user root => sudo su -
+apt-get install -y build-essential zlib1g-dev apache2-threaded-dev libcurl4-openssl-dev
+=> exit
+=> exit
+Login as trustpay: 
+    => ssh-add ~/amazon/trustpay.at.trustpay.biz
+    => ssh trustpay@192.168.50.5
+
+gem install passenger # Note: does not work if installed without docs
+passenger-install-apache2-module
+Exit
+
+Login with: vagrant ssh
+Change to user root => sudo su -
+
+bash -c 'echo "   LoadModule passenger_module /home/trustpay/.rvm/gems/ruby-1.9.3-p194/gems/passenger-3.0.{15}/ext/apache2/mod_passenger.so" > /etc/apache2/conf.d/passenger'
+bash -c 'echo "   PassengerRoot /home/trustpay/.rvm/gems/ruby-1.9.3-p194/gems/passenger-3.0.{15}" >> /etc/apache2/conf.d/passenger'
+bash -c 'echo "   PassengerRuby /home/trustpay/.rvm/wrappers/ruby-1.9.3-p194/ruby" >> /etc/apache2/conf.d/passenger'
+
+/etc/init.d/apache2 restart
+
+[ Check that /var/log/apache2/error.log has something like
+Fri Aug 10 11:50:35 2012] [notice] Apache/2.2.16 (Ubuntu) Phusion_Passenger/3.0.15 configured -- resuming normal operations
+in it] 
+------------------------------------------------------------------------------- 
+
+Deploying into production emulator, assuming a maverick32trustpay instance
+
+On this box
+
+vagrant up
+
+vagrant ssh
+
+sudo apt-get -y install libmagick9-dev
+
+=> exit 
+
+ssh-add ~/amazon/trustpay.at.trustpay.biz
+
+cap deploy:setup
+cap deploy:cold
+
+#ssh trustpay@192.168.50.5
+
+vagrant ssh
+
+cd /etc/apache2/sites-available/
+sudo ln -s /home/trustpay/TrustPay/current/config/apache/my.trustpay.biz .
+
+sudo a2ensite my.trustpay.biz
+sudo a2enmod rewrite
+sudo a2enmod ssl
+
+sudo /etc/init.d/apache2 restart
+
+cap deploy {the default is staging}
+
+--------------------------------------------------------------------------------
+
+Locally: (Add my.trustpay.biz to your host file)
+
+In /etc/hosts: Add 192.168.50.5 => my.trustpay.biz
+

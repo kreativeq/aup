@@ -1,0 +1,30 @@
+Creating vagrant box for deployment tests.
+
+       Start the box
+
+            vagrant up
+            [It should download and install everything, according to the script]
+
+       Package the box
+
+           vagrant package --output maverick32trustpay.box
+
+           vagrant box add 'maverick32trustpay' 'maverick32trustpay.box'
+
+           md5sum maverick32trustpay.box | awk '{print $1}' > maverick32trustpay.box.md5
+
+           scp maverick32trustpay.box* alanz@10.2.2.112:/var/www/incoming/vagrant/boxes/virtualbox-4.1.18/
+
+       Clean up
+
+           vagrant destroy
+
+           This will remove the .vagrant file, and delete the VM from
+           virtualbox, freeing up space and avoiding future confusion
+
+
+           The box is now installed in your local environment. If you
+           do not need to make it available to others, get rid of the
+           artifacts
+
+           rm maverick32trustpay.box*
